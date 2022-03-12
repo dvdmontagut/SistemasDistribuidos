@@ -120,7 +120,7 @@ public class Carrera100 {
 		carreraEmpezada = false;
 		String respuesta = "";
 		for (int i = 0; i < numAtletas; i++) {
-			respuesta = respuesta + " atleta: " + Integer.toString(i) +" "+ atletas[i]+"\n";
+			respuesta = respuesta + " atleta: " + Integer.toString(i) +" "+ atletas[i]+ System.lineSeparator();
 		} // End of for
 		semR.release(numAtletas);
 		return respuesta;

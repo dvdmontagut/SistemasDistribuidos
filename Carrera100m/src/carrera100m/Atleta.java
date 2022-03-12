@@ -12,7 +12,7 @@ public class Atleta implements Runnable {
 	public Atleta(int dorsal) {
 		this.dorsal = dorsal;
 		final Random r = new Random();
-		tiempo = (long)((r.nextFloat()*2.2f) + 9.56f)*1000;
+		tiempo = (long)(((r.nextFloat()*2.2f) + 9.56f)*1000f);
 	}// End of builder
 
 	@Override
@@ -36,6 +36,7 @@ public class Atleta implements Runnable {
 			return false;
 		} // End of if
 		System.out.println("Atleta " + this.dorsal + ": " + output);
+		System.out.flush();
 		return true;
 	}
 
@@ -47,6 +48,7 @@ public class Atleta implements Runnable {
 			return false;
 		} // End of if
 		System.out.println("Atleta " + this.dorsal + ": Empieza");
+		System.out.flush();
 		return true;
 	}
 
@@ -59,6 +61,7 @@ public class Atleta implements Runnable {
 			return false;
 		} // End of if
 		System.out.println("Atleta " + this.dorsal + ": Llegó");
+		System.out.flush();
 		return true;
 	}
 

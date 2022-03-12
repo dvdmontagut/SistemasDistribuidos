@@ -28,6 +28,7 @@ public class CarreraMain {
 			return false;
 		} // End of if
 		System.out.println(output);
+		System.out.flush();
 		return true;
 	}// End of method
 
@@ -45,6 +46,7 @@ public class CarreraMain {
 			return false;
 		} // End of if
 		System.out.println(output);
+		System.out.flush();
 		return true;
 	}// End of method
 
