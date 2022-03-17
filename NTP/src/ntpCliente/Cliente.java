@@ -9,23 +9,11 @@ public class Cliente {
 
 	
 	public static void main(String[] args) {
-		List<Par> pares = new ArrayList<>();
 		List<String> links = new ArrayList<>();
-		links.add("http://localhost:8080/pruebaREST/montadito/tiempo/pedir");
-
-		for (String s : links) {
-			int repeticiones = 8;
-			long delay, offset = Integer.MAX_VALUE;
-			for (int i = 0; i < repeticiones; i++) {
-				long t0 = System.currentTimeMillis();
-				List<Long> t = pedirDatos(s);
-				long t3 = System.currentTimeMillis();
-				delay = DeterminarDelay(t0,t.get(0),t.get(1),t3);
-				offset = DeterminarOffset(delay, t0, t.get(0), t.get(1), t3);
-				pares.add(new Par(delay,offset));
-			}
-			//Llamar a marzullo
-		}
+		links.add("http://localhost:8080/NTP/montadito/tiempo/pedir");
+		int repeticiones = 5;
+		for(int i=0; i<repeticiones; i++)
+			todo(links);
 	}//End of main
 	private static long DeterminarDelay(long t0, Long t1, Long t2, long t3) {
 		return t1+t3-t2-t0;
@@ -80,5 +68,24 @@ public class Cliente {
 			return null;
 		}
 	}//End of method
+	private static void todo (List<String> links) {
+		List<Par> pares = new ArrayList<>();
+		List<Long> valores;
+		
+		for (String s : links) {
+			int repeticiones = 8;
+			long delay, offset = Integer.MAX_VALUE;
+			for (int i = 0; i < repeticiones; i++) {
+				long t0 = System.currentTimeMillis();
+				List<Long> t = pedirDatos(s);
+				long t3 = System.currentTimeMillis();
+				delay = DeterminarDelay(t0,t.get(0),t.get(1),t3);
+				offset = DeterminarOffset(delay, t0, t.get(0), t.get(1), t3);
+				pares.add(new Par(delay,offset));
+			}
+			valores = Marzullo.calcular(pares);
+			System.out.println("Para el link " + s + " Obtenemos: [" + valores.get(0) + "," + valores.get(1) + "]");
+		}
+	}
 }//End of class
 

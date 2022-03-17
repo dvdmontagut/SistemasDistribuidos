@@ -1,20 +1,33 @@
 package ntpCliente;
 
-public class Tupla {
-	private Par par;
+
+public class Tupla implements Comparable<Tupla>{
+	private Long t;
 	private int cnt;
 
-	public Par getPar() {
-		return this.par;
+	public Long getT() {
+		return this.t;
 	}
 
 	public int getCnt() {
 		return cnt;
 	}
 
-	public Tupla(Par par, int cnt) {
-		this.par = par;
+	public Tupla(Long t, int cnt) {
+		this.t = t;
 		this.cnt = cnt;
 	}// End of builder
 
+	@Override
+	public int compareTo(Tupla tupla) {
+		if(this.getT()>tupla.getT())
+			return 1;
+		if(this.getT()<tupla.getT())
+			return -1;
+		if(this.getCnt()>tupla.getCnt())
+			return -1;
+		if(this.getCnt()<tupla.getCnt())
+			return 1;
+		return 0;
+	}
 }
