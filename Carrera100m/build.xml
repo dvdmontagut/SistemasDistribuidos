@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Carrera100m_DavidMontagut_AnibalVaquero">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="../../../Desktop/eclipse/"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <path id="Web App Libraries.libraryclasspath">
+        <pathelement location="WebContent/WEB-INF/lib/aopalliance-repackaged-2.6.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/hk2-api-2.6.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/hk2-locator-2.6.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/hk2-utils-2.6.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.activation-api-1.2.2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.annotation-api-1.3.5.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.inject-2.6.1.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.json-1.1.6-module.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.json-1.1.6.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.json-api-1.1.6.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.json.bind-api-1.0.2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.persistence-api-2.2.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.servlet-api-4.0.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.validation-api-2.0.2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.ws.rs-api-2.1.6-sources.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.ws.rs-api-2.1.6.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jakarta.xml.bind-api-2.3.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/javassist-3.25.0-GA.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-client.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-common.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-container-servlet-core.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-container-servlet.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-hk2.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-media-jaxb.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-media-json-binding.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-media-sse.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/jersey-server.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/org.osgi.core-6.0.0.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/osgi-resource-locator-1.0.3.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib/yasson-1.0.9.jar"/>
+    </path>
+    <path id="EAR Libraries.libraryclasspath"/>
+    <path id="Carrera100m_DavidMontagut_AnibalVaquero.classpath">
+        <pathelement location="build/classes"/>
+        <path refid="Web App Libraries.libraryclasspath"/>
+        <path refid="EAR Libraries.libraryclasspath"/>
+    </path>
+    <target name="init">
+        <mkdir dir="build/classes"/>
+        <copy includeemptydirs="false" todir="build/classes">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="build/classes"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="build/classes" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="Carrera100m_DavidMontagut_AnibalVaquero.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="CarreraMain">
+        <java classname="carrera100m.CarreraMain" failonerror="true" fork="yes">
+            <classpath refid="Carrera100m_DavidMontagut_AnibalVaquero.classpath"/>
+        </java>
+    </target>
+</project>

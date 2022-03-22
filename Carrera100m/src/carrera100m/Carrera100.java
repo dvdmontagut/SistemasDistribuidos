@@ -103,7 +103,7 @@ public class Carrera100 {
 			return "error D";
 		atletas[dorsal] = System.currentTimeMillis() - tiempoInicio;
 		semR.release();
-		return "Tiempo!!";
+		return String.valueOf(atletas[dorsal]);
 	}// End of method
 
 	@GET
