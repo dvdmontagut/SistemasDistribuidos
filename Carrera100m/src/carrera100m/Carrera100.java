@@ -125,24 +125,4 @@ public class Carrera100 {
 		semR.release(numAtletas);
 		return respuesta;
 	}// End of method
-
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	@Path("hardReset")
-	public String hardReset() {
-		corriendo = listo = true;
-		semP.release(99);
-		semL.release(99);
-		semY.release(99);
-		semR.release(99);
-		try {Thread.sleep((long)12000);} catch (InterruptedException e) {e.printStackTrace();}
-		carreraEmpezada = false;
-		return "Hard Reset";
-	}// End of method
-	
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String ping() {
-		return "Aqui esta el tio";
-	}// End of method
 }// End of class
