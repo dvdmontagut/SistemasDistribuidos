@@ -7,7 +7,7 @@ jarse := "jaxrs-ri/etc/aopalliance-repackaged-2.6.1.jar" "jaxrs-ri/etc/hk2-api-2
 
 
 servidor:
-	javac -cp   ./jaxrs-ri/lib/*.jar ./jaxrs-ri/api/*.jar ./jaxrs-ri/etc/*.jar $(files_cliente)
+	javac -cp ./jaxrs-ri/api/*.jar $(files_cliente)
 	jar -cvmf manifest 
 cliente: 
 	javac $(jarse) $(files_cliente)
@@ -15,3 +15,9 @@ cliente:
 cli:
 	jar cf $(jarse) $(class)
 
+clean:
+	rm -r -d apache-tomcat-9.0.59
+	rm -r -d jaxrs-ri
+	rm -r -d tom.zip
+	rm -r -d jerry.zip
+	rm *.class *.java *.jar lanzar.sh limpiar.sh shareKeys.sh

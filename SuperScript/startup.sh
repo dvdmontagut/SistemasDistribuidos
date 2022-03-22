@@ -18,6 +18,10 @@ curl http://vis.usal.es/rodrigo/documentos/sisdis/scripts/shareKeys.sh > shareKe
 
 chmod +x *.sh
 
+mv jaxrs-ri/ext/*.jar jaxrs-ri/api/
+mv jaxrs-ri/lib/*.jar jaxrs-ri/api/
+
+
 make 
 
 
