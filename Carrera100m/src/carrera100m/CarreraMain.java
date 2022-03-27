@@ -5,7 +5,16 @@ import java.io.*;
 
 public class CarreraMain {
 
+	private static String linkd = "http://localhost:8080/Carrera100m_DavidMontagut_AnibalVaquero/Carrera100";
+
 	public static void main(String[] args) {
+		variosOrdenadores();
+	}// End of main
+
+
+
+	public static void unOrdenador() {
+
 		int numAtletas = 4;
 
 		// Reinicio
@@ -17,10 +26,36 @@ public class CarreraMain {
 		if (!resultados())
 			;
 		return;
-	}// End of main
+	}
+
+
+public static void variosOrdenadores() {
+
+		int numAtletas = 4;
+		int numAtletasTotales = 8;
+
+		// Reinicio
+		if (!reiniciar(numAtletasTotales))
+			return;
+		// Creo los corredores
+		crearAtletas(numAtletas);
+		// Pido resultados
+		if (!resultados())
+			;
+		return;
+	}
+
+public static void serCliente() {
+
+	int numAtletas = 4;
+
+	// Creo los corredores
+	crearAtletas(numAtletas);
+	return;
+}
 
 	private static boolean reiniciar(int numAtletas) {
-		String link = "http://localhost:8080/Carrera100m_DavidMontagut_AnibalVaquero/Carrera100/reinicio?num="
+		String link = linkd + "/reinicio?num="
 				+ numAtletas;
 		String output = peticion(link, "POST");
 		if (output == null || output.contains("error")) {
@@ -33,13 +68,14 @@ public class CarreraMain {
 	}// End of method
 
 	private static void crearAtletas(int numAtletas) {
+
 		for (int i = 0; i < numAtletas; i++)
-			new Thread(new Atleta(i)).start();
+			new Thread(new Atleta(0,linkd)).start();
 	}// End of method
 
 	private static boolean resultados() {
 
-		String link = "http://localhost:8080/Carrera100m_DavidMontagut_AnibalVaquero/Carrera100/resultados";
+		String link = linkd + "/resultados";
 		String output = peticion(link, "GET");
 		if (output == null || output.contains("error")) {
 			System.out.println(output == null ? "Error resultados" : output);

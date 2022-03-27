@@ -8,9 +8,11 @@ public class Atleta implements Runnable {
 
 	private int dorsal;
 	private long tiempo;
+	private String linkd;
 
-	public Atleta(int dorsal) {
+	public Atleta(int dorsal,String l) {
 		this.dorsal = dorsal;
+		this.linkd = l;
 		final Random r = new Random();
 		tiempo = (long)(((r.nextFloat()*2.2f) + 9.56f)*1000f);
 	}// End of builder
@@ -29,19 +31,22 @@ public class Atleta implements Runnable {
 	}// End of run
 
 	private boolean preparado() {
-		String link = "http://localhost:8080/Carrera100m_DavidMontagut_AnibalVaquero/Carrera100/preparado";
+		String link = linkd + "/preparado";
+		String [] tokens = new String[2];
 		String output = peticion(link, "GET");
 		if (output == null || output.contains("error")) {
 			System.out.println(output == null ? "Error" : output);
 			return false;
 		} // End of if
-		System.out.println("Atleta " + this.dorsal + ": " + output);
+		tokens = output.split(";");
+		dorsal = Integer.parseInt(tokens[0]);
+		System.out.println("Atleta " + this.dorsal + ": " + tokens[1]);
 		System.out.flush();
 		return true;
 	}
 
 	private boolean listo() {
-		String link = "http://localhost:8080/Carrera100m_DavidMontagut_AnibalVaquero/Carrera100/listo";
+		String link = linkd + "/listo";
 		String output = peticion(link, "GET");
 		if (output == null || output.contains("error")) {
 			System.out.println(output == null ? "Error" : output);
@@ -54,7 +59,7 @@ public class Atleta implements Runnable {
 
 	private boolean llegue() {
 		try {Thread.sleep(this.tiempo);} catch (InterruptedException e) {e.printStackTrace();}
-		String link = "http://localhost:8080/Carrera100m_DavidMontagut_AnibalVaquero/Carrera100/llegada?dorsal="+dorsal;
+		String link = linkd + "/llegada?dorsal="+dorsal;
 		String output = peticion(link, "POST");
 		if (output == null || output.contains("error")) {
 			System.out.println(output == null ? "Error" : output);

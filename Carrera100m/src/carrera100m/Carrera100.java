@@ -17,7 +17,6 @@ public class Carrera100 {
 	private int numAtletas = 4;
 	private int numPreparados = Integer.MAX_VALUE;
 	private int numListos = Integer.MAX_VALUE;
-
 	private long tiempoInicio;
 	private long[] atletas;
 	private Semaphore semP, semR, semL, semY;
@@ -45,11 +44,12 @@ public class Carrera100 {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("preparado")
 	public String preparado() {
+		int dorsal=0;
 		if (!this.carreraEmpezada || this.listo)
 			return "error E1";
 		try {
 			semP.acquire();
-
+			dorsal = numPreparados;
 			numPreparados++;
 
 			if (this.numPreparados == this.numAtletas)
@@ -63,7 +63,7 @@ public class Carrera100 {
 			e.printStackTrace();
 		}
 		listo = true;
-		return "Listos... ";
+		return dorsal +";Listos... ";
 	}// End of method
 
 	@GET
