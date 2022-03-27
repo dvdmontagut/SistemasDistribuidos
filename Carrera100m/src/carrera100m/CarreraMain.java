@@ -8,14 +8,36 @@ public class CarreraMain {
 	private static String linkd = "http://localhost:8080/Carrera100m_DavidMontagut_AnibalVaquero/Carrera100";
 
 	public static void main(String[] args) {
-		variosOrdenadores();
+		
+		/* El link del servidor se almacena en la siguiente variable que puede ser modificada por argumentos (como se muestra a continuación) o a mano*/
+		// linkd = "http://" + args[1] + ":8080/Carrera100m_DavidMontagut_AnibalVaquero/Carrera100";
+		
+		/*Hay 3 maneras de ejecutar el método principal:
+		 * 	Servidor y clientes en la misma máquina:
+		 * 		Para ello hay que utilizar: unOrdenador(numero de atletas);
+		 * Servidor y clientes distribuidos, se diferencian 2 roles, el cliente que reinicia y los demas:
+		 * 		El primero de los clientes debe ejecutar el método variosOrdenadores(numero atletas, numero total atletas); que implica reinicio de variables,
+		 * 		Los demás clientes ejecutarán el método serCliente(numero atletas);
+		 * 
+		 * La manera de alternar entre modos de ejecución es descomentar las lineas pertinentes a continuación:*/
+		
+		// No distribuido, necesita el número de atletas totales:
+		unOrdenador(4);
+		
+		
+		// Distribuido
+		
+		/*Primer cliente, debe establecer el numero de atletas que añade a la carrera y cual va a ser el número total de atletas*/
+		// variosOrdenadores(4, 12);
+		
+		/* Demás clientes, debe establecer cuantos atletas añade a la carrera*/
+		// serCliente(4);
 	}// End of main
 
 
 
-	public static void unOrdenador() {
+	public static void unOrdenador(int numAtletas) {
 
-		int numAtletas = 4;
 
 		// Reinicio
 		if (!reiniciar(numAtletas))
@@ -29,10 +51,7 @@ public class CarreraMain {
 	}
 
 
-public static void variosOrdenadores() {
-
-		int numAtletas = 4;
-		int numAtletasTotales = 8;
+public static void variosOrdenadores(int numAtletas, int numAtletasTotales) {
 
 		// Reinicio
 		if (!reiniciar(numAtletasTotales))
@@ -45,9 +64,8 @@ public static void variosOrdenadores() {
 		return;
 	}
 
-public static void serCliente() {
+public static void serCliente(int numAtletas) {
 
-	int numAtletas = 4;
 
 	// Creo los corredores
 	crearAtletas(numAtletas);
