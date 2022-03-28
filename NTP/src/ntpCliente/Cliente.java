@@ -10,11 +10,34 @@ public class Cliente {
 	
 	public static void main(String[] args) {
 		List<String> links = new ArrayList<>();
-		links.add("http://localhost:8080/NTP/montadito/tiempo/pedir");
-		int repeticiones = 5;
+		links.add("http://localhost:8080/NTP/montadito/tiempo/pedir"); //la manera de añadir servidores es utilizar links.add("");
+		//links.add("http://000.000.000.000:8080/NTP/montadito/tiempo/pedir");
+		int repeticiones = 1; //Esto es opcional lo dejamos en uno, pero por curiosidad probamos con más iteraciones de las necesarias.
 		for(int i=0; i<repeticiones; i++)
-			todo(links);
+			todo(links); //La función todo se encarga de ejecutar el problema.
+		
 	}//End of main
+	
+	private static void todo (List<String> links) {
+		List<Par> pares = new ArrayList<>();
+		List<Long> valores;
+		
+		for (String s : links) {
+			int repeticiones = 8;
+			long delay, offset = Integer.MAX_VALUE;
+			for (int i = 0; i < repeticiones; i++) {
+				long t0 = System.currentTimeMillis();
+				List<Long> t = pedirDatos(s);
+				long t3 = System.currentTimeMillis();
+				delay = DeterminarDelay(t0,t.get(0),t.get(1),t3);
+				offset = DeterminarOffset(delay, t0, t.get(0), t.get(1), t3);
+				pares.add(new Par(delay,offset));
+			}
+			valores = Marzullo.calcular(pares);
+			System.out.println("Para el link " + s + " Obtenemos: [" + valores.get(0) + "," + valores.get(1) + "]");
+		}
+	}
+	
 	private static long DeterminarDelay(long t0, Long t1, Long t2, long t3) {
 		return t1+t3-t2-t0;
 	}//End of method
@@ -25,14 +48,11 @@ public class Cliente {
 		return (offsetMax + offsetMin)/2;
 	}//End of method
 	public static List<Long> pedirDatos(String link) {
-
 		return factoryNumeros(peticion(link,"GET"));
-
 	}//End of method
 
 	
 	public static List<Long> factoryNumeros(String s) {
-
 		List<Long> l = new ArrayList<>();
 		String[] tokens = s.split(";");
 		l.add(Long.parseLong(tokens[0]));
@@ -68,24 +88,6 @@ public class Cliente {
 			return null;
 		}
 	}//End of method
-	private static void todo (List<String> links) {
-		List<Par> pares = new ArrayList<>();
-		List<Long> valores;
-		
-		for (String s : links) {
-			int repeticiones = 8;
-			long delay, offset = Integer.MAX_VALUE;
-			for (int i = 0; i < repeticiones; i++) {
-				long t0 = System.currentTimeMillis();
-				List<Long> t = pedirDatos(s);
-				long t3 = System.currentTimeMillis();
-				delay = DeterminarDelay(t0,t.get(0),t.get(1),t3);
-				offset = DeterminarOffset(delay, t0, t.get(0), t.get(1), t3);
-				pares.add(new Par(delay,offset));
-			}
-			valores = Marzullo.calcular(pares);
-			System.out.println("Para el link " + s + " Obtenemos: [" + valores.get(0) + "," + valores.get(1) + "]");
-		}
-	}
+	
 }//End of class
 
