@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import clientes.Mensajero;
 import utils.Utils;
 
 
@@ -111,17 +112,14 @@ public class Proceso extends Thread{
 	 * caido.
 	 */
 	public void eleccionPeticion() {
-		for(int i=id;i<agenda.size();i++)
-			Utils.peticion(agenda.get(i)+"eleccion",Utils.POST);
-		try {
-			if(timeoutEleccion.tryAcquire(1, TimeUnit.SECONDS))
-				esperarCoordinador();
-			else
-				coordinador();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		for(int i=id;i<agenda.size();i++) {
+			Mensajero hilo = new Mensajero(agenda.get(i), Utils.POST, Mensajero.OK, timeoutEleccion);
+			hilo.start();
+		}//End of for
+			//if(timeoutEleccion.tryAcquire(1, TimeUnit.SECONDS))
+				
+			//else
 		
 	}//End of eleccionPeticion
 	
