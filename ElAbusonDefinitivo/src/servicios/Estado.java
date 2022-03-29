@@ -2,6 +2,10 @@ package servicios;
 
 import utils.Utils;
 
+/**
+ * @author Anibal Vaquero y David Montagut
+ */
+
 public class Estado {
 
 	private int estado = -1;
