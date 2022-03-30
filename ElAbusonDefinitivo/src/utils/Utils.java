@@ -29,6 +29,9 @@ public class Utils {
 	
 	public static final String SEPARADOR=";";
 	
+	public static final String CORAZON_ROJO = "💔";
+	public static final String CORAZON_VERDE = "💚";
+	
 	
 	
 	/*
@@ -108,6 +111,17 @@ public class Utils {
         return null;
         
 	}//End of creaAgenda
+
+	public static String factoryInfo(String peticion) {
+		String [] tokens = peticion.split(Utils.SEPARADOR);
+		StringBuilder sb = new StringBuilder();
+		sb.append("\n").append("PROCESO: ").append(tokens[0]).append("\n");
+		sb.append("\t").append(tokens[1].toUpperCase());
+		sb.append(tokens[1].equals("apagado")?Utils.CORAZON_ROJO:Utils.CORAZON_VERDE).append("\n");
+		sb.append("\t").append("Estado: ").append(tokens[2].toUpperCase()).append("\n");
+		sb.append("\t").append("Id Coordinador: ").append(tokens[3]).append("\n");
+		return sb.toString();
+	}
 	
 	
 }//End of class

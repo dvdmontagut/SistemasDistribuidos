@@ -1,6 +1,5 @@
 package clientes;
 
-import java.util.concurrent.Semaphore;
 
 import utils.Utils;
 
@@ -11,7 +10,6 @@ import utils.Utils;
 public class Mensajero extends Thread{
 	
 	private String link, metodo;
-	private Semaphore sem;
 	
 	
 	public Mensajero (String link, String metodo) {

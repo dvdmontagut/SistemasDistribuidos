@@ -1,9 +1,5 @@
 package servicios;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
@@ -87,7 +83,9 @@ public class Proceso extends Thread{
 	public void eleccionPeticion() {
 		
 		while(true) {
+			Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 			this.estado.setEstado(Utils.ELECCION_ACTIVA);
+			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 			for(int i=id+1;i<agenda.size();i++) {
 				Mensajero hilo = new Mensajero(agenda.get(i)+
 						"eleccion?id="+this.id, Utils.POST);
