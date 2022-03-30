@@ -16,19 +16,17 @@ public class Mensajero extends Thread{
 	
 	public static final int OK = 0;
 	
-	public Mensajero (String link, String metodo, int tipo, Semaphore sem) {
+	public Mensajero (String link, String metodo, int tipo) {
 		this.link = link;
 		this.tipo = tipo;
 		this.metodo = metodo;
-		this.sem = sem;
 	}//End of builder
 	
 	@Override
 	public void run() {
 		switch(tipo) {
 		case Mensajero.OK:
-			if(Utils.peticion(link, metodo).equals("Ok"))
-				Utils.signalSem(sem, 1);
+			Utils.peticion(link, metodo);
 			break;
 		}//End of switch
 		return;

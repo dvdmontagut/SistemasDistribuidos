@@ -36,7 +36,7 @@ public class Proceso extends Thread{
 	private List<String> agenda;
 	
 	private Semaphore muertoVivo;
-	private Semaphore seccionCriticaArrancar, seccionCriticaOk, seccionCriticaEsperaOk, seccionCriticaCoordinador;
+	private Semaphore seccionCriticaArrancar, seccionCriticaOk, seccionCriticaEsperaOk, seccionCriticaCoordinador, seccionCriticaCambiarEstado;
 	private Semaphore timeoutEleccion, timeoutCoordinador;
 	
 	
@@ -47,8 +47,6 @@ public class Proceso extends Thread{
 			
 			this.muertoVivo = new Semaphore (0);
 			this.seccionCriticaArrancar = new Semaphore (1);
-			this.timeoutEleccion = new Semaphore (0);
-			this.timeoutCoordinador = new Semaphore (0);
 			this.seccionCriticaOk = new Semaphore (0);
 			this.seccionCriticaEsperaOk = new Semaphore (1);
 			this.seccionCriticaCoordinador = new Semaphore (0);
@@ -101,11 +99,7 @@ public class Proceso extends Thread{
 		
 		
 	//ZONA CLIENTE
-	
-	//ABUSO DE TI
-	public void ok() {
-		
-	}
+
 	
 	/**
 	 * Notifica a los procesos de mayor pid que él de que el coordinador se ha
@@ -113,14 +107,31 @@ public class Proceso extends Thread{
 	 */
 	public void eleccionPeticion() {
 		
-		for(int i=id;i<agenda.size();i++) {
-			Mensajero hilo = new Mensajero(agenda.get(i), Utils.POST, Mensajero.OK, timeoutEleccion);
-			hilo.start();
-		}//End of for
-			//if(timeoutEleccion.tryAcquire(1, TimeUnit.SECONDS))
-				
-			//else
-		
+		while(true) {
+			this.timeoutEleccion = new Semaphore (0);
+			this.timeoutCoordinador = new Semaphore (0);
+			
+			for(int i=id;i<agenda.size();i++) {
+				Mensajero hilo = new Mensajero(agenda.get(i)+"eleccion?id="+this.id, Utils.POST, Mensajero.OK);
+				hilo.start();
+			}//End of for
+			
+			try {
+				if(timeoutEleccion.tryAcquire(1, TimeUnit.SECONDS)) {
+					if(timeoutCoordinador.tryAcquire(1, TimeUnit.SECONDS)) {
+						this.idCordinador=this.posibleIdCoordinador;
+						return;
+					}//End of if
+					else {
+						continue;
+					}//End of else
+				}//End of if
+				else {
+					this.idCordinador=this.id;
+					coordinador();
+				}//End of else
+			} catch (InterruptedException e) {e.printStackTrace();}
+		}//End of while
 	}//End of eleccionPeticion
 	
 	/**
@@ -192,20 +203,30 @@ public class Proceso extends Thread{
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("eleccion")
-	public String eleccionRespuesta () {
-		
-		Utils.waitSem(seccionCriticaEsperaOk, 1);
-			if(!this.esperandoOk) return "Timeout";
-			this.esperandoOk = false;
-		Utils.signalSem(seccionCriticaEsperaOk, 1);
-		
-		try {
-			if(seccionCriticaOk.tryAcquire(1,TimeUnit.SECONDS))
-				Utils.signalSem(timeoutEleccion, 1);
-			else return "Timeout";
-		} catch (InterruptedException e) {e.printStackTrace();}
+	public String eleccionRespuesta (@QueryParam(value = "id") int id) {
+		Utils.peticion(this.agenda.get(id)+"ok","POST");
+		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
+		if(this.estado.toString().equals(Utils.ACUERDO)) {
+			this.estado.setEstado(Utils.ELECCION_ACTIVA);
+			eleccionPeticion();
+		}//End of if
+		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		return "Ok";
 	}// End of eleccionRespuesta	
+	
+	@POST
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("ok")
+	public String ok() {
+		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
+		if(this.estado.toString().equals(Utils.ELECCION_ACTIVA)) {
+			this.estado.setEstado(Utils.ELECCION_PASIVA);
+			Utils.signalSem(this.timeoutEleccion, 1);
+		}//End of if
+		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
+		return "Ok";
+	}// End of eleccionRespuesta
+	
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("coordinador")
