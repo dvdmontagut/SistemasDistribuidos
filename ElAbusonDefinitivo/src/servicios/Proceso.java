@@ -10,6 +10,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -32,11 +33,10 @@ public class Proceso extends Thread{
 	private int idCordinador, posibleIdCoordinador;
 	private Estado estado;
 	private boolean on;
-	private boolean esperandoOk, esperandoCoordinador;
 	private List<String> agenda;
 	
 	private Semaphore muertoVivo;
-	private Semaphore seccionCriticaArrancar, seccionCriticaOk, seccionCriticaEsperaOk, seccionCriticaCoordinador, seccionCriticaCambiarEstado;
+	private Semaphore seccionCriticaArrancar, seccionCriticaCambiarEstado;
 	private Semaphore timeoutEleccion, timeoutCoordinador;
 	
 	
@@ -47,11 +47,6 @@ public class Proceso extends Thread{
 			
 			this.muertoVivo = new Semaphore (0);
 			this.seccionCriticaArrancar = new Semaphore (1);
-			this.seccionCriticaOk = new Semaphore (0);
-			this.seccionCriticaEsperaOk = new Semaphore (1);
-			this.seccionCriticaCoordinador = new Semaphore (0);
-			
-			this.esperandoOk = false;
 			
 			try {
 				estado = new Estado(Utils.ELECCION_ACTIVA);
@@ -64,24 +59,10 @@ public class Proceso extends Thread{
 			
 			try {
 				agenda = Utils.creaAgenda();
-			} catch (Exception e) {
-				System.err.println("No hay fichero");
-				return;
-			}
-			
+			} catch (Exception e) {System.err.println("No hay fichero");return;}
 			System.out.println(agenda.toString());
-			
 		}//End of builder
 		
-		public int computar() {
-			
-			if(this.on == false)
-				return -1;
-			Random r = new Random();
-			Utils.dormir(r.nextInt(20) + 10);
-			return 1;
-			
-		}// End of method
 		
 		@Override
 		public void run() {
@@ -91,13 +72,11 @@ public class Proceso extends Thread{
 					Utils.waitSem(muertoVivo, 1);
 				Random r = new Random();
 				Utils.dormir(r.nextInt(50) + 50);
-				if(computar() == -1)
+				String valor = Utils.peticion(agenda.get(this.idCordinador)+"computar",Utils.GET);
+				if(valor.equals(Utils.RESPONSE_ERROR))
 					eleccionPeticion();
 			}//End of while
-			
-		}//End of run
-		
-		
+		}//End of run	
 	//ZONA CLIENTE
 
 	
@@ -108,11 +87,10 @@ public class Proceso extends Thread{
 	public void eleccionPeticion() {
 		
 		while(true) {
-			this.timeoutEleccion = new Semaphore (0);
-			this.timeoutCoordinador = new Semaphore (0);
-			
-			for(int i=id;i<agenda.size();i++) {
-				Mensajero hilo = new Mensajero(agenda.get(i)+"eleccion?id="+this.id, Utils.POST, Mensajero.OK);
+			this.estado.setEstado(Utils.ELECCION_ACTIVA);
+			for(int i=id+1;i<agenda.size();i++) {
+				Mensajero hilo = new Mensajero(agenda.get(i)+
+						"eleccion?id="+this.id, Utils.POST);
 				hilo.start();
 			}//End of for
 			
@@ -126,10 +104,8 @@ public class Proceso extends Thread{
 						continue;
 					}//End of else
 				}//End of if
-				else {
-					this.idCordinador=this.id;
+				else 
 					coordinador();
-				}//End of else
 			} catch (InterruptedException e) {e.printStackTrace();}
 		}//End of while
 	}//End of eleccionPeticion
@@ -155,41 +131,31 @@ public class Proceso extends Thread{
 	 */
 	public void coordinador() {
 		this.idCordinador = this.id;
-		for(String nodo : agenda)
-			Utils.peticion(nodo + "coordinador?=" + this.id, Utils.POST);
+		this.estado.setEstado(Utils.ACUERDO);
+		for(int i=0;i<agenda.size();i++) {
+			if(this.id!=i) {
+				Mensajero hilo = new Mensajero(agenda.get(i)+
+						"coordinador?id="+this.id, Utils.POST);
+				hilo.start();
+			}//End of if
+		}//End for
 	}//End of serCoordinador
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//ZONA SERVIDOR
+/*============================================================================
+ * ==============================ZONA SERVIDOR	==============================
+ * ===========================================================================
+ */
 	
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("arrancar")
 	public String arrancar() {
-		if(this.on) return "Ok";
+		if(this.on) return Utils.RESPONSE_OK;
 		this.on = true;
 		if(!Utils.waitSem(seccionCriticaArrancar, 1)) return "Error";
 		if(muertoVivo.availablePermits()==0)
 			Utils.signalSem(muertoVivo, 1);
 		if(!Utils.signalSem(seccionCriticaArrancar, 1)) return "Error";
-		return "Ok";
+		return Utils.RESPONSE_OK;
 	}// End of arrancar
 	
 	@POST
@@ -197,8 +163,19 @@ public class Proceso extends Thread{
 	@Path("apagar")
 	public String apagar() {
 		this.on = false;
-		return "Ok";
+		return Utils.RESPONSE_OK;
 	}// End of apagar
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("computar")
+	public String computar() {
+		if(this.on == false)
+			return Utils.RESPONSE_ERROR;
+		Random r = new Random();
+		Utils.dormir(r.nextInt(20) + 10);
+		return Utils.RESPONSE_OK;
+	}// End of method
 	
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
@@ -211,7 +188,7 @@ public class Proceso extends Thread{
 			eleccionPeticion();
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
-		return "Ok";
+		return Utils.RESPONSE_OK;
 	}// End of eleccionRespuesta	
 	
 	@POST
@@ -224,15 +201,34 @@ public class Proceso extends Thread{
 			Utils.signalSem(this.timeoutEleccion, 1);
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
-		return "Ok";
+		return Utils.RESPONSE_OK;
 	}// End of eleccionRespuesta
 	
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("coordinador")
-	public String CoordinadorRespuesta (@QueryParam(value = "num") int num) {
-		return "Ok";
+	public String CoordinadorRespuesta (@QueryParam(value = "id") int id) {
+		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
+		if(this.estado.toString().equals(Utils.ACUERDO)) {
+			this.posibleIdCoordinador = id;
+			this.estado.setEstado(Utils.ACUERDO);
+			Utils.signalSem(this.timeoutCoordinador, 1);
+		}//End of if
+		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
+		return Utils.RESPONSE_OK;
 	}//End of CoordinadorRespuesta
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("estado")
+	public String estado() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.id).append(Utils.SEPARADOR);
+		sb.append(this.on?"encendido":"apagado");
+		sb.append(Utils.SEPARADOR).append(this.estado.toString());
+		sb.append(Utils.SEPARADOR).append(this.idCordinador);
+		return sb.toString();
+	}// End of estado
 } //End of class
 
 

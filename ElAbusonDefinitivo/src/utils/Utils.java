@@ -24,6 +24,11 @@ public class Utils {
 	public static final String POST="POST";
 	public static final String GET="GET";
 	
+	public static final String RESPONSE_ERROR="Error";
+	public static final String RESPONSE_OK="1";
+	
+	public static final String SEPARADOR=";";
+	
 	
 	
 	/*
