@@ -37,7 +37,8 @@ public class Proceso {
 		
 		
 		public void run() {
-
+			if(this.idCordinador == -1) 
+				eleccionPeticion();
 			while(true) {
 				if(this.on == false)
 					Utils.waitSem(muertoVivo, 1);
@@ -125,8 +126,12 @@ public class Proceso {
 		this.id = id;
 		this.idCordinador = -1;
 		
+		
 		this.muertoVivo = new Semaphore (0);
 		this.seccionCriticaArrancar = new Semaphore (1);
+		this.seccionCriticaCambiarEstado = new Semaphore(1);
+		this.timeoutCoordinador = new Semaphore (0);
+		this.timeoutEleccion = new Semaphore (0);
 		
 		try {
 			estado = new Estado(Utils.ELECCION_ACTIVA);
@@ -142,7 +147,7 @@ public class Proceso {
 		} catch (Exception e) {System.err.println("No hay fichero");return Utils.RESPONSE_ERROR;}
 		System.out.println(agenda.toString());
 		
-		//this.run();
+		this.run();
 		return Utils.RESPONSE_OK;
 	}// End of arrancar
 	

@@ -100,6 +100,7 @@ public class Utils {
             for(int i = 0 ; i < lines.size() ; i++) {
             	StringBuilder sb = new StringBuilder();
             	sb.append("http://").append(lines.get(i)).append("/ElAbusonDefinitivo/anibal_montagut/proceso/");
+            	//Ejemplo: http://localhost:8080/ElAbusonDefinitivo/anibal_montagut/proceso/estado
             	agenda.add(sb.toString());
             }//End of for
             return agenda;

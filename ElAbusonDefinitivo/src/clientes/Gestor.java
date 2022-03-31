@@ -15,20 +15,23 @@ public class Gestor {
 	public static void main(String[] args) {
 		boolean fin = false;
 		
+		iniciarProcesos();
+		
 		String menu = "==========MENU==========\n" +
 				"========PRINCIPAL========\n" +
 				"Pulse 1 para parar procesos.\n" +
 				"Pulse 2 para arrancar procesos.\n" +
 				"Pulse 3 para obtener información.\n" +
 				"Pulse 4 para salir.\n";
-		String [] opciones = {"1","2","3","4"};
+		//String [] opciones = {"1","2","3","4"};
 		while(!fin) {
-			String input = Esdia.readString(menu, opciones);
+			int input = Esdia.readInt(menu);
 			switch(input) {
-			case "1": menuParar(); break;
-			case "2": menuArrancar(); break;
-			case "3": pedirInfo(); break;
-			case "4": fin=true;
+			case 1: menuParar(); break;
+			case 2: menuArrancar(); break;
+			case 3: pedirInfo(); break;
+			case 4: fin=true; break;
+			default: break;
 			}//End of switch
 		}//End of while
 	}//End of main
@@ -36,6 +39,18 @@ public class Gestor {
 	
 
 	
+
+	private static void iniciarProcesos() {
+		List<String> agenda = Utils.creaAgenda();
+		for(int i=0; i<agenda.size(); i++) {
+			Mensajero m = new Mensajero(agenda.get(i)+"inicio?id="+i, Utils.POST);
+			m.start();
+		}//End of for
+	}//End of iniciarProcesos
+
+
+
+
 
 	private static void menuParar() {
 		Set <Integer> peticion = new HashSet<>();
@@ -134,7 +149,7 @@ public class Gestor {
 		List<String> agenda = Utils.creaAgenda();
 		
 		for(String i:agenda) 
-			System.out.println(Utils.factoryInfo(Utils.peticion(i+"datos", Utils.GET)));
+			System.out.println(Utils.factoryInfo(Utils.peticion(i+"estado", Utils.GET)));
 	}//End of pedirInfor
 	
 }//End of class
