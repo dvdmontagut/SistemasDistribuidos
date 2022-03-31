@@ -37,14 +37,18 @@ public class Proceso {
 		
 		
 		public void run() {
-			if(this.idCordinador == -1) 
-				eleccionPeticion();
+			String valor;
 			while(true) {
+				if(this.idCordinador == -1) 
+					eleccionPeticion();
+				
 				if(this.on == false)
 					Utils.waitSem(muertoVivo, 1);
 				Random r = new Random();
 				Utils.dormir(r.nextInt(50) + 50);
-				String valor = Utils.peticion(agenda.get(this.idCordinador)+"computar",Utils.GET);
+				try {
+					valor = Utils.peticion(agenda.get(this.idCordinador)+"computar",Utils.GET);
+				}catch(Exception e) {valor = Utils.RESPONSE_ERROR;}
 				if(valor.equals(Utils.RESPONSE_ERROR))
 					eleccionPeticion();
 			}//End of while
@@ -78,8 +82,10 @@ public class Proceso {
 						continue;
 					}//End of else
 				}//End of if
-				else 
+				else {
 					coordinador();
+					return;
+				}//End of else	
 			} catch (InterruptedException e) {e.printStackTrace();}
 		}//End of while
 	}//End of eleccionPeticion
@@ -108,6 +114,8 @@ public class Proceso {
 		this.estado.setEstado(Utils.ACUERDO);
 		for(int i=0;i<agenda.size();i++) {
 			if(this.id!=i) {
+				System.out.println(agenda.get(i)+
+						"coordinador?id="+this.id);
 				Mensajero hilo = new Mensajero(agenda.get(i)+
 						"coordinador?id="+this.id, Utils.POST);
 				hilo.start();
@@ -169,6 +177,7 @@ public class Proceso {
 	@Path("apagar")
 	public String apagar() {
 		this.on = false;
+		this.idCordinador = -1;
 		return Utils.RESPONSE_OK;
 	}// End of apagar
 	
@@ -221,6 +230,7 @@ public class Proceso {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("coordinador")
 	public String CoordinadorRespuesta (@QueryParam(value = "id") int id) {
+		System.out.println("REcibi que el poscible eso es "+ id);
 		if(this.on == false) 
 			return Utils.RESPONSE_ERROR;
 		
