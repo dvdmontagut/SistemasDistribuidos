@@ -1,5 +1,4 @@
 package utils;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -100,7 +99,7 @@ public class Utils {
             List<String> agenda = new ArrayList <> ();
             for(int i = 0 ; i < lines.size() ; i++) {
             	StringBuilder sb = new StringBuilder();
-            	sb.append("http://").append(lines.get(i)).append("/anibal_montagut/proceso/");
+            	sb.append("http://").append(lines.get(i)).append("/ElAbusonDefinitivo/anibal_montagut/proceso/");
             	agenda.add(sb.toString());
             }//End of for
             return agenda;

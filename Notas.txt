@@ -1,0 +1,1 @@
+Para cambiar el puerto en el que se lanza un servidor hay que ir al tomcat/conf/server.xml

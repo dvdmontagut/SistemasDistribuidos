@@ -22,7 +22,7 @@ import utils.Utils;
  */
 @Path("proceso")
 @Singleton
-public class Proceso extends Thread{
+public class Proceso {
 
 	
 	private int id;
@@ -34,33 +34,8 @@ public class Proceso extends Thread{
 	private Semaphore muertoVivo;
 	private Semaphore seccionCriticaArrancar, seccionCriticaCambiarEstado;
 	private Semaphore timeoutEleccion, timeoutCoordinador;
-	
-	
-	//ZONA INTERNA
-		public Proceso(int idProceso) {
-			this.id = idProceso;
-			this.idCordinador = -1;
-			
-			this.muertoVivo = new Semaphore (0);
-			this.seccionCriticaArrancar = new Semaphore (1);
-			
-			try {
-				estado = new Estado(Utils.ELECCION_ACTIVA);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
-			}
-			
-			this.on = true;
-			
-			try {
-				agenda = Utils.creaAgenda();
-			} catch (Exception e) {System.err.println("No hay fichero");return;}
-			System.out.println(agenda.toString());
-		}//End of builder
 		
 		
-		@Override
 		public void run() {
 
 			while(true) {
@@ -145,6 +120,34 @@ public class Proceso extends Thread{
 	
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
+	@Path("inicio")
+	public String inicio(@QueryParam(value = "id") int id) {
+		this.id = id;
+		this.idCordinador = -1;
+		
+		this.muertoVivo = new Semaphore (0);
+		this.seccionCriticaArrancar = new Semaphore (1);
+		
+		try {
+			estado = new Estado(Utils.ELECCION_ACTIVA);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Utils.RESPONSE_ERROR;
+		}
+		
+		this.on = true;
+		
+		try {
+			agenda = Utils.creaAgenda();
+		} catch (Exception e) {System.err.println("No hay fichero");return Utils.RESPONSE_ERROR;}
+		System.out.println(agenda.toString());
+		
+		//this.run();
+		return Utils.RESPONSE_OK;
+	}// End of arrancar
+	
+	@POST
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("arrancar")
 	public String arrancar() {
 		if(this.on) return Utils.RESPONSE_OK;
@@ -168,8 +171,9 @@ public class Proceso extends Thread{
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("computar")
 	public String computar() {
-		if(this.on == false)
+		if((this.on == false) || (this.id != this.idCordinador))
 			return Utils.RESPONSE_ERROR;
+		
 		Random r = new Random();
 		Utils.dormir(r.nextInt(20) + 10);
 		return Utils.RESPONSE_OK;
@@ -179,6 +183,9 @@ public class Proceso extends Thread{
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("eleccion")
 	public String eleccionRespuesta (@QueryParam(value = "id") int id) {
+		if(this.on == false) 
+			return Utils.RESPONSE_ERROR;
+		
 		Utils.peticion(this.agenda.get(id)+"ok","POST");
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ACUERDO)) {
@@ -193,6 +200,9 @@ public class Proceso extends Thread{
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("ok")
 	public String ok() {
+		if(this.on == false) 
+			return Utils.RESPONSE_ERROR;
+		
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ELECCION_ACTIVA)) {
 			this.estado.setEstado(Utils.ELECCION_PASIVA);
@@ -206,6 +216,9 @@ public class Proceso extends Thread{
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("coordinador")
 	public String CoordinadorRespuesta (@QueryParam(value = "id") int id) {
+		if(this.on == false) 
+			return Utils.RESPONSE_ERROR;
+		
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ACUERDO)) {
 			this.posibleIdCoordinador = id;
