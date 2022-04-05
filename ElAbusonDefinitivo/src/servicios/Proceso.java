@@ -39,7 +39,8 @@ public class Proceso {
 		public void run() {
 			String valor;
 			while(true) {
-				if(this.idCordinador == -1) 
+				System.out.println("Inicio nuevo ciclo");
+				if(this.estado.toString() != Utils.ACUERDO) 
 					eleccionPeticion();
 				
 				if(this.on == false)
@@ -49,8 +50,12 @@ public class Proceso {
 				try {
 					valor = Utils.peticion(agenda.get(this.idCordinador)+"computar",Utils.GET);
 				}catch(Exception e) {valor = Utils.RESPONSE_ERROR;}
-				if(valor.equals(Utils.RESPONSE_ERROR))
-					eleccionPeticion();
+				System.out.println(valor);
+				if(valor.equals(Utils.RESPONSE_ERROR)) {
+					System.out.println("Recibo error");
+					this.estado.setEstado(Utils.ELECCION_ACTIVA);
+				}
+					
 			}//End of while
 		}//End of run	
 	//ZONA CLIENTE
@@ -142,7 +147,7 @@ public class Proceso {
 		try {
 			agenda = Utils.creaAgenda();
 		} catch (Exception e) {System.err.println("No hay fichero");return Utils.RESPONSE_ERROR;}
-		
+		System.out.println("Inicio:\n\tId: "+ this.id + "\n\tAgenda: " + this.agenda);
 		this.run();
 		return Utils.RESPONSE_OK;
 	}// End of arrancar
@@ -165,7 +170,6 @@ public class Proceso {
 	@Path("apagar")
 	public String apagar() {
 		this.on = false;
-		this.idCordinador = -1;
 		return Utils.RESPONSE_OK;
 	}// End of apagar
 	
@@ -189,12 +193,10 @@ public class Proceso {
 			return Utils.RESPONSE_ERROR;
 		if(!this.estado.toString().equals(Utils.ELECCION_ACTIVA))
 			return Utils.RESPONSE_OK;
-		this.idCordinador = -1;
 		Utils.peticion(this.agenda.get(id)+"ok","POST");
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ACUERDO)) {
 			this.estado.setEstado(Utils.ELECCION_ACTIVA);
-			eleccionPeticion();
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		return Utils.RESPONSE_OK;
@@ -228,6 +230,12 @@ public class Proceso {
 			this.posibleIdCoordinador = id;
 			this.estado.setEstado(Utils.ACUERDO);
 			Utils.signalSem(this.timeoutCoordinador, 1);
+		}//End of if
+		if(this.estado.toString().equals(Utils.ACUERDO)) {
+			if(this.idCordinador!=id) {
+				Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
+				this.estado.setEstado(Utils.ELECCION_ACTIVA);
+			}
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		return Utils.RESPONSE_OK;
