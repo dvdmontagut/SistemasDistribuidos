@@ -99,8 +99,6 @@ public class Proceso {
 	 * Notifica a los demás procesos que este se ha convertido en coordinador
 	 */
 	public void coordinador() {
-		this.idCordinador = this.id;
-		this.estado.setEstado(Utils.ACUERDO);
 		for(int i=0;i<agenda.size();i++) {
 			if(this.id!=i) {
 				Mensajero hilo = new Mensajero(agenda.get(i)+
@@ -108,6 +106,10 @@ public class Proceso {
 				hilo.start();
 			}//End of if
 		}//End for
+		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
+		this.estado.setEstado(Utils.ACUERDO);
+		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
+		this.idCordinador = this.id;
 	}//End of serCoordinador
 /*============================================================================
  * ==============================ZONA SERVIDOR	==============================
@@ -222,7 +224,7 @@ public class Proceso {
 			return Utils.RESPONSE_ERROR;
 		
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
-		if(this.estado.toString().equals(Utils.ACUERDO)) {
+		if(this.estado.toString().equals(Utils.ELECCION_PASIVA)) {
 			this.posibleIdCoordinador = id;
 			this.estado.setEstado(Utils.ACUERDO);
 			Utils.signalSem(this.timeoutCoordinador, 1);
