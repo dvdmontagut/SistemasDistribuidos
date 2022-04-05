@@ -74,15 +74,19 @@ public class Proceso {
 			
 			try {
 				if(timeoutEleccion.tryAcquire(1, TimeUnit.SECONDS)) {
+					System.out.println("Me han dado ok");
 					if(timeoutCoordinador.tryAcquire(1, TimeUnit.SECONDS)) {
-						this.idCordinador=this.posibleIdCoordinador;
+						System.out.println("No soy coordinador");
+						this.idCordinador = this.posibleIdCoordinador;
 						return;
 					}//End of if
 					else {
+						System.out.println("No he recibido coordinador");
 						continue;
 					}//End of else
 				}//End of if
 				else {
+					System.out.println("soy coordinador");
 					coordinador();
 					return;
 				}//End of else	
@@ -90,21 +94,6 @@ public class Proceso {
 		}//End of while
 	}//End of eleccionPeticion
 	
-	/**
-	 * Espera por la elección de un coordinador, si no obtiene respuesta
-	 * significa que un proceso de id superior se ha caido y se resetea
-	 * el proceso.
-	 */
-	public void esperarCoordinador() {
-		try {
-			if(timeoutCoordinador.tryAcquire(1, TimeUnit.SECONDS))
-				this.idCordinador = this.posibleIdCoordinador;
-			else 
-				eleccionPeticion();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}//End of esperarCoordinador
 	
 	/**
 	 * Notifica a los demás procesos que este se ha convertido en coordinador
@@ -114,8 +103,6 @@ public class Proceso {
 		this.estado.setEstado(Utils.ACUERDO);
 		for(int i=0;i<agenda.size();i++) {
 			if(this.id!=i) {
-				System.out.println(agenda.get(i)+
-						"coordinador?id="+this.id);
 				Mensajero hilo = new Mensajero(agenda.get(i)+
 						"coordinador?id="+this.id, Utils.POST);
 				hilo.start();
@@ -153,7 +140,6 @@ public class Proceso {
 		try {
 			agenda = Utils.creaAgenda();
 		} catch (Exception e) {System.err.println("No hay fichero");return Utils.RESPONSE_ERROR;}
-		System.out.println(agenda.toString());
 		
 		this.run();
 		return Utils.RESPONSE_OK;
@@ -199,7 +185,9 @@ public class Proceso {
 	public String eleccionRespuesta (@QueryParam(value = "id") int id) {
 		if(this.on == false) 
 			return Utils.RESPONSE_ERROR;
-		
+		if(!this.estado.toString().equals(Utils.ELECCION_ACTIVA))
+			return Utils.RESPONSE_OK;
+		this.idCordinador = -1;
 		Utils.peticion(this.agenda.get(id)+"ok","POST");
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ACUERDO)) {
@@ -230,7 +218,6 @@ public class Proceso {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("coordinador")
 	public String CoordinadorRespuesta (@QueryParam(value = "id") int id) {
-		System.out.println("REcibi que el poscible eso es "+ id);
 		if(this.on == false) 
 			return Utils.RESPONSE_ERROR;
 		

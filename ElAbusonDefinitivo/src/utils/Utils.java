@@ -6,6 +6,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -43,6 +44,7 @@ public class Utils {
 		try {
 			URL url;
 			String output;
+			System.out.println(LocalDateTime.now()+": "+link);
 			url = new URL(link);
 			StringBuilder sb = new StringBuilder();
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
