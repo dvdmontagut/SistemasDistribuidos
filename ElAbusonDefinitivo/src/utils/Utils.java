@@ -59,7 +59,6 @@ public class Utils {
 			conn.disconnect();
 			return sb.toString();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -68,22 +67,14 @@ public class Utils {
 	public static Boolean waitSem(Semaphore s, int n) {
 		try {
 			s.acquire(n);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+		} catch (InterruptedException e) {e.printStackTrace();return false;}
 		return true;
 	}//End of accederSeccionCritica
 	
 	public static Boolean signalSem(Semaphore s, int n) {
 		try {
 			s.release(n);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+		} catch (Exception e) {e.printStackTrace();return false;}
 		return true;
 	}//End of salirSeccionCritica
 

@@ -22,7 +22,8 @@ public class Gestor {
 				"Pulse 1 para parar procesos.\n" +
 				"Pulse 2 para arrancar procesos.\n" +
 				"Pulse 3 para obtener información.\n" +
-				"Pulse 4 para salir.\n";
+				"Pulse 4 para salir.\n" +
+				"Pulse 5 para reiniciar.\n" ;
 		//String [] opciones = {"1","2","3","4"};
 		while(!fin) {
 			int input = Esdia.readInt(menu);
@@ -31,6 +32,7 @@ public class Gestor {
 			case 2: menuArrancar(); break;
 			case 3: pedirInfo(); break;
 			case 4: fin=true; break;
+			case 5: iniciarProcesos();
 			default: break;
 			}//End of switch
 		}//End of while
@@ -59,7 +61,7 @@ public class Gestor {
 		while(!salir) {
 			String menu = "----------MENU----------\n" +
 					"----------PARAR---------\n" +
-					"Escriba los número de los procesos a para\n" +
+					"Escriba los número de los procesos a parar\n" +
 					"Pulse 'q' para cancelar y pulse 'y' para confirmar\n\n"+
 					"Procesos seleccionados("+peticion.size()+"):" + peticion.toString() + "\n\n\n";
 			String valor = Esdia.readString(menu);
@@ -106,7 +108,7 @@ public class Gestor {
 		while(!salir) {
 			String menu = "++++++++++MENU++++++++++\n" +
 					"++++++++ARRANCAR++++++++\n" +
-					"Escriba los número de los procesos a para\n" +
+					"Escriba los número de los procesos a arrancar\n" +
 					"Pulse 'q' para cancelar y pulse 'y' para confirmar\n\n"+
 					"Procesos seleccionados("+peticion.size()+"):" + peticion.toString() + "\n\n\n";
 			String valor = Esdia.readString(menu);
