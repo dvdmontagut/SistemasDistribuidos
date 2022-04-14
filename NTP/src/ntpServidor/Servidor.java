@@ -28,6 +28,6 @@ public class Servidor {
 		
 		return t1+";"+t2;
 	
-	}
-}
+	}//End of pedir
+}//End of class
 

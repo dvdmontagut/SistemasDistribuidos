@@ -7,11 +7,11 @@ public class Tupla implements Comparable<Tupla>{
 
 	public Long getT() {
 		return this.t;
-	}
+	}//End of getter
 
 	public int getCnt() {
 		return cnt;
-	}
+	}//End of getter
 
 	public Tupla(Long t, int cnt) {
 		this.t = t;
@@ -29,5 +29,5 @@ public class Tupla implements Comparable<Tupla>{
 		if(this.getCnt()<tupla.getCnt())
 			return 1;
 		return 0;
-	}
-}
+	}//End of compareTo
+}//End of class
