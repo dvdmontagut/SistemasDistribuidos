@@ -34,6 +34,7 @@ public class Proceso {
 	private Semaphore muertoVivo;
 	private Semaphore seccionCriticaArrancar, seccionCriticaCambiarEstado;
 	private Semaphore timeoutEleccion, timeoutCoordinador;
+	private Semaphore puerta; //CAMBIO
 		
 		
 		public void run() {
@@ -109,6 +110,7 @@ public class Proceso {
 	 * Notifica a los demás procesos que este se ha convertido en coordinador
 	 */
 	public void coordinador() {
+		
 		for(int i=0;i<agenda.size();i++) {
 			if(this.id!=i) {
 				Mensajero hilo = new Mensajero(agenda.get(i)+
@@ -139,6 +141,7 @@ public class Proceso {
 		this.seccionCriticaCambiarEstado = new Semaphore(1);
 		this.timeoutCoordinador = new Semaphore (0);
 		this.timeoutEleccion = new Semaphore (0);
+		this.puerta = new Semaphore (0); //cambio
 		
 		try {
 			estado = new Estado(Utils.ELECCION_ACTIVA);
@@ -221,10 +224,13 @@ public class Proceso {
 		if(this.on == false) 
 			return Utils.RESPONSE_ERROR;
 		
+		
+		
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ELECCION_ACTIVA)) {
 			this.estado.setEstado(Utils.ELECCION_PASIVA);
 			Utils.signalSem(this.timeoutEleccion, 1);
+			Utils.signalSem(this.puerta, 1); //cambio
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		return Utils.RESPONSE_OK;
@@ -236,6 +242,9 @@ public class Proceso {
 	public String CoordinadorRespuesta (@QueryParam(value = "id") int id) {
 		if(this.on == false) 
 			return Utils.RESPONSE_ERROR;
+		
+		//CAMBIO ESPERAR
+		Utils.waitSem(this.puerta, 1);
 		
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ELECCION_PASIVA)) {
