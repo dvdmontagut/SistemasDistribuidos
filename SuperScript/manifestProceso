@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-Main-Class: carrera100m.CarreraMain
+Main-Class: servicios.Proceso
 Class-Path: jaxrs-ri/api/*
 

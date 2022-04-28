@@ -11,6 +11,8 @@ unzip jerry.zip
 #Descargamos tomcat
 curl https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.59/bin/apache-tomcat-9.0.59.zip > tom.zip
 unzip tom.zip
+# Descargamos biblioteca.jar
+curl http://maxus.fis.usal.es/HOTHOUSE/p3/biblioteca8.jar > jaxrs-ri/api/biblioteca8.jar
 #Descargamos los scripts de Rodrigo
 curl http://vis.usal.es/rodrigo/documentos/sisdis/scripts/lanzar.sh > lanzar.sh
 curl http://vis.usal.es/rodrigo/documentos/sisdis/scripts/limpiar.sh > limpiar.sh
