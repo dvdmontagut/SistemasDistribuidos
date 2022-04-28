@@ -230,7 +230,8 @@ public class Proceso {
 		if(this.estado.toString().equals(Utils.ELECCION_ACTIVA)) {
 			this.estado.setEstado(Utils.ELECCION_PASIVA);
 			Utils.signalSem(this.timeoutEleccion, 1);
-			Utils.signalSem(this.puerta, 1); //cambio
+			if(this.puerta.availablePermits()== 0)
+				Utils.signalSem(this.puerta, 1); //cambio
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		return Utils.RESPONSE_OK;
