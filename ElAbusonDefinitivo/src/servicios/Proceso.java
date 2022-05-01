@@ -61,7 +61,7 @@ public class Proceso {
 				
 				if(valor.equals(Utils.RESPONSE_ERROR)) {
 					this.estado.setEstado(Utils.ELECCION_ACTIVA);
-					log.info("Estado cambiado a " + Utils.ELECCION_ACTIVA);
+					log.info("Estado cambiado a " + estado.toString());
 				}//End of if
 					
 			}//End of while
@@ -78,6 +78,7 @@ public class Proceso {
 		while(this.on) {
 			Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 			this.estado.setEstado(Utils.ELECCION_ACTIVA);
+			log.info("Estado cambiado a " + estado.toString());
 			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 			for(int i=id+1;i<agenda.size();i++) {
 				Mensajero hilo = new Mensajero(agenda.get(i)+
@@ -122,6 +123,7 @@ public class Proceso {
 		}//End for
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		this.estado.setEstado(Utils.ACUERDO);
+		log.info("Estado cambiado a " + estado.toString());
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		this.idCordinador = this.id;
 	}//End of serCoordinador
@@ -179,6 +181,7 @@ public class Proceso {
 		
 		if(!Utils.waitSem(seccionCriticaCambiarEstado, 1))return "Error";
 		this.estado.setEstado(Utils.ELECCION_ACTIVA);
+		log.info("Estado cambiado a " + estado.toString());
 		Utils.signalSem(seccionCriticaCambiarEstado, 1);
 		return Utils.RESPONSE_OK;
 	}// End of arrancar
@@ -215,6 +218,7 @@ public class Proceso {
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ACUERDO)) {
 			this.estado.setEstado(Utils.ELECCION_ACTIVA);
+			log.info("Estado cambiado a " + estado.toString());
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		return Utils.RESPONSE_OK;
@@ -232,6 +236,7 @@ public class Proceso {
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ELECCION_ACTIVA)) {
 			this.estado.setEstado(Utils.ELECCION_PASIVA);
+			log.info("Estado cambiado a " + estado.toString());
 			Utils.signalSem(this.timeoutEleccion, 1);
 			if(this.puerta.availablePermits()== 0)
 				Utils.signalSem(this.puerta, 1); //cambio
@@ -255,6 +260,7 @@ public class Proceso {
 		if(this.estado.toString().equals(Utils.ELECCION_PASIVA)) {
 			this.posibleIdCoordinador = id;
 			this.estado.setEstado(Utils.ACUERDO);
+			log.info("Estado cambiado a " + estado.toString());
 			Utils.signalSem(this.timeoutCoordinador, 1);
 			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 			return Utils.RESPONSE_OK;
@@ -262,6 +268,7 @@ public class Proceso {
 		if(this.estado.toString().equals(Utils.ACUERDO)) {
 			if(this.idCordinador!=id) {
 				this.estado.setEstado(Utils.ELECCION_ACTIVA);
+				log.info("Estado cambiado a " + estado.toString());
 			}//End of if
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
