@@ -1,5 +1,6 @@
 package utils;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -137,8 +138,18 @@ public class Utils {
 		//https://www.geeksforgeeks.org/logger-getlogger-method-in-java-with-examples/?ref=lbp
 		Logger logger = Logger.getLogger(nombreClase);  
 	    FileHandler fh;  
-	    String ruta = Paths.get(System.getProperty("user.home"),id+".log").toString();
-
+	    boolean creado = false;
+	    int intento = 0;
+	    String ruta = "";
+	    do {
+	    	ruta = Paths.get(System.getProperty("user.home"),id+"ej"+intento+".log").toString();
+	    	File f = new File(ruta);
+	        if (f.exists())
+	        	intento++;
+	        else
+	        	creado = true;
+	    }while(!creado);
+	        
 	    try {  
 
 	        // This block configure the logger with handler and formatter  

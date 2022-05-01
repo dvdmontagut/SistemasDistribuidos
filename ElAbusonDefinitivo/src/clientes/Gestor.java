@@ -48,7 +48,7 @@ public class Gestor {
 			Mensajero m = new Mensajero(agenda.get(i)+"inicio?id="+i, Utils.POST);
 			m.start();
 		}//End of for
-		log.info("Inciando procesos del 1 al " + agenda.size());
+		log.info("Inciando procesos del 1 al " + (agenda.size()-1));
 	}//End of iniciarProcesos
 
 

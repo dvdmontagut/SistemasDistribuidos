@@ -43,26 +43,25 @@ public class Proceso {
 		public void run() {
 			String valor;
 			while(true) {
-				System.out.println("Inicio nuevo ciclo");
-				
+				log.info("Nuevo ciclo run");
 				if(this.on == false)
 					Utils.waitSem(muertoVivo, 1);
 				
-				if(this.estado.toString() != Utils.ACUERDO) 
+				if(this.estado.toString() != Utils.ACUERDO) {
+					log.info("Iniciamos elecciones");
 					eleccionPeticion();
-				
+				}
 				
 				Random r = new Random();
 				Utils.dormir(r.nextInt(50) + 50);
 				try {
 					valor = Utils.peticion(agenda.get(this.idCordinador)+"computar",Utils.GET);
 				}catch(Exception e) {valor = Utils.RESPONSE_ERROR;}
-				
-				System.out.println(valor);
+				log.info("Computamos:" + valor);
 				
 				if(valor.equals(Utils.RESPONSE_ERROR)) {
-					System.out.println("Recibo error");
 					this.estado.setEstado(Utils.ELECCION_ACTIVA);
+					log.info("Estado cambiado a " + Utils.ELECCION_ACTIVA);
 				}//End of if
 					
 			}//End of while
@@ -85,26 +84,26 @@ public class Proceso {
 						"eleccion?id="+this.id, Utils.POST);
 				hilo.start();
 			}//End of for
+			if(id != agenda.size()-1)
+				log.info("Mensaje eleccion?id enviado a los procesos del "+ (id+1) +" al " + (agenda.size()-1));
+			else
+				log.info("No envio mensaje eleccion?id por ser el proceso de mayor id");
 			
 			try {
 				if(timeoutEleccion.tryAcquire(1, TimeUnit.SECONDS)) {
-					System.out.println("Me han dado ok");
 					if(timeoutCoordinador.tryAcquire(1, TimeUnit.SECONDS)) {
-						System.out.println("No soy coordinador");
 						this.idCordinador = this.posibleIdCoordinador;
 						return;
 					}//End of if
 					else {
-						System.out.println("No he recibido coordinador");
 						continue;
 					}//End of else
 				}//End of if
 				else {
-					System.out.println("soy coordinador");
 					coordinador();
 					return;
 				}//End of else	
-			} catch (InterruptedException e) {e.printStackTrace();}
+			} catch (InterruptedException e) {log.info(e.getMessage());}
 		}//End of while
 	}//End of eleccionPeticion
 	
@@ -238,6 +237,7 @@ public class Proceso {
 				Utils.signalSem(this.puerta, 1); //cambio
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
+		log.info("He recibido ok");
 		return Utils.RESPONSE_OK;
 	}// End of eleccionRespuesta
 	
