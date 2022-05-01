@@ -52,7 +52,6 @@ public class Utils {
 		try {
 			URL url;
 			String output;
-			System.out.println(LocalDateTime.now()+": "+link);
 			url = new URL(link);
 			StringBuilder sb = new StringBuilder();
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
