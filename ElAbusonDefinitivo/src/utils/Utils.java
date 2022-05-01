@@ -1,5 +1,6 @@
 package utils;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -10,6 +11,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * @author Anibal Vaquero y David Montagut
@@ -126,6 +130,36 @@ public class Utils {
 		sb.append("\t").append("Id Coordinador: ").append(tokens[3]).append("\n");
 		return sb.toString();
 	}
+	
+	public static Logger crearLoger(String nombreClase,String id) {
+		
+		//https://stackoverflow.com/questions/15758685/how-to-write-logs-in-text-file-when-using-java-util-logging-logger
+		//https://www.geeksforgeeks.org/logger-getlogger-method-in-java-with-examples/?ref=lbp
+		Logger logger = Logger.getLogger(nombreClase);  
+	    FileHandler fh;  
+	    String ruta = Paths.get(System.getProperty("user.home"),id+".log").toString();
+
+	    try {  
+
+	        // This block configure the logger with handler and formatter  
+	        fh = new FileHandler(ruta);  
+	        logger.addHandler(fh);
+	        SimpleFormatter formatter = new SimpleFormatter();  
+	        fh.setFormatter(formatter);  
+	        logger.setUseParentHandlers(false);
+
+	        // the following statement is used to log any messages  
+	        logger.info("Log listo para empezar");  
+	        return logger;
+	    } catch (SecurityException e) {  
+	        e.printStackTrace();  
+	    } catch (IOException e) {  
+	        e.printStackTrace();  
+	    }  
+	    
+	    return null;
+		
+	}//End of crearLoger
 	
 	
 }//End of class

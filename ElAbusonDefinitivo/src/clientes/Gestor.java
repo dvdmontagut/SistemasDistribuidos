@@ -4,6 +4,7 @@ package clientes;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.coti.tools.Esdia;
 
@@ -12,9 +13,11 @@ import clientes.Mensajero;
 
 public class Gestor {
 	
+	private static Logger log;
+	
 	public static void main(String[] args) {
 		boolean fin = false;
-		
+		log = Utils.crearLoger(Gestor.class.getName(), "Gestor");
 		iniciarProcesos();
 		
 		String menu = "==========MENU==========\n" +
@@ -22,9 +25,7 @@ public class Gestor {
 				"Pulse 1 para parar procesos.\n" +
 				"Pulse 2 para arrancar procesos.\n" +
 				"Pulse 3 para obtener información.\n" +
-				"Pulse 4 para salir.\n" +
-				"Pulse 5 para reiniciar.\n" ;
-		//String [] opciones = {"1","2","3","4"};
+				"Pulse 4 para salir.\n";
 		while(!fin) {
 			int input = Esdia.readInt(menu);
 			switch(input) {
@@ -32,7 +33,6 @@ public class Gestor {
 			case 2: menuArrancar(); break;
 			case 3: pedirInfo(); break;
 			case 4: fin=true; break;
-			case 5: iniciarProcesos();
 			default: break;
 			}//End of switch
 		}//End of while
@@ -48,6 +48,7 @@ public class Gestor {
 			Mensajero m = new Mensajero(agenda.get(i)+"inicio?id="+i, Utils.POST);
 			m.start();
 		}//End of for
+		log.info("Inciando procesos del 1 al " + agenda.size());
 	}//End of iniciarProcesos
 
 
@@ -92,8 +93,8 @@ public class Gestor {
 			String link = agenda.get(i) + "apagar";
 			Mensajero m = new Mensajero(link, Utils.POST);
 			m.start();
-			System.out.println("Se ha mandado apagar al proceso " + i);
 		}//End of for
+		log.info("Se ha mandado parar los procesos: "+ peticion.toString());
 	}//End of parar
 
 	private static boolean comprobar(int n) {
@@ -126,8 +127,7 @@ public class Gestor {
 					n = Integer.parseInt(valor);
 				}catch(Exception e) {System.out.println("Valor no válido.");break;}
 				if(comprobar(n)) {
-						peticion.add(n);
-						
+						peticion.add(n);	
 				}//End if
 			}//End switch
 		}//End of while
@@ -139,8 +139,8 @@ public class Gestor {
 			String link = agenda.get(i) + "arrancar";
 			Mensajero m = new Mensajero(link, Utils.POST);
 			m.start();
-			System.out.println("Se ha mandado arrancar al proceso " + i);
 		}//End of for
+		log.info("Se ha mandado arrancar los procesos: "+ peticion.toString());
 	}//End of arrancar
 
 
@@ -149,9 +149,14 @@ public class Gestor {
 
 	private static void pedirInfo() {
 		List<String> agenda = Utils.creaAgenda();
-		
-		for(String i:agenda) 
-			System.out.println(Utils.factoryInfo(Utils.peticion(i+"estado", Utils.GET)));
+		StringBuilder sb = new StringBuilder();
+		for(String i:agenda) {
+			String s;
+			s = Utils.factoryInfo(Utils.peticion(i+"estado", Utils.GET));
+			System.out.println(s);
+			sb.append(s).append("\n");
+		}//end of for
+		log.info(sb.toString());
 	}//End of pedirInfor
 	
 }//End of class

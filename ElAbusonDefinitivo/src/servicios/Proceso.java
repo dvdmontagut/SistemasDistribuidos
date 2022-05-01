@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -13,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import clientes.Gestor;
 import clientes.Mensajero;
 import utils.Utils;
 
@@ -35,6 +37,7 @@ public class Proceso {
 	private Semaphore seccionCriticaArrancar, seccionCriticaCambiarEstado;
 	private Semaphore timeoutEleccion, timeoutCoordinador;
 	private Semaphore puerta; //CAMBIO
+	private static Logger log;
 		
 		
 		public void run() {
@@ -142,6 +145,7 @@ public class Proceso {
 		this.timeoutCoordinador = new Semaphore (0);
 		this.timeoutEleccion = new Semaphore (0);
 		this.puerta = new Semaphore (0); //cambio
+		log = Utils.crearLoger(Gestor.class.getName(), id+"");
 		
 		try {
 			estado = new Estado(Utils.ELECCION_ACTIVA);
