@@ -28,7 +28,7 @@ public class Proceso {
 
 	
 	private int id;
-	private int idCordinador, posibleIdCoordinador;
+	private int idCordinador;
 	private Estado estado;
 	private boolean on = false;
 	private List<String> agenda;
@@ -75,6 +75,8 @@ public class Proceso {
 	 */
 	public void eleccionPeticion() {
 		
+		Semaphore s = new Semaphore(0);
+		
 		while(this.on) {
 			Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 			this.estado.setEstado(Utils.ELECCION_ACTIVA);
@@ -82,9 +84,10 @@ public class Proceso {
 			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 			for(int i=id+1;i<agenda.size();i++) {
 				Mensajero hilo = new Mensajero(agenda.get(i)+
-						"eleccion?id="+this.id, Utils.POST);
+						"eleccion?id="+this.id, Utils.POST,s);
 				hilo.start();
 			}//End of for
+			Utils.signalSem(s, agenda.size());
 			if(id != agenda.size()-1)
 				log.info("Mensaje eleccion?id enviado a los procesos del "+ (id+1) +" al " + (agenda.size()-1) + "\n");
 			else
@@ -93,7 +96,6 @@ public class Proceso {
 			try {
 				if(timeoutEleccion.tryAcquire(1, TimeUnit.SECONDS)) {
 					if(timeoutCoordinador.tryAcquire(1, TimeUnit.SECONDS)) {
-						this.idCordinador = this.posibleIdCoordinador;
 						return;
 					}//End of if
 					else {
@@ -114,13 +116,15 @@ public class Proceso {
 	 */
 	public void coordinador() {
 		
+		Semaphore s = new Semaphore(0);
 		for(int i=0;i<agenda.size();i++) {
 			if(this.id!=i) {
 				Mensajero hilo = new Mensajero(agenda.get(i)+
-						"coordinador?id="+this.id, Utils.POST);
+						"coordinador?id="+this.id, Utils.POST,s);
 				hilo.start();
 			}//End of if
 		}//End for
+		Utils.signalSem(s, agenda.size());
 		log.info("He difundido a todo el mundo ser el coordinador" + "\n");
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		this.estado.setEstado(Utils.ACUERDO);
@@ -261,9 +265,9 @@ public class Proceso {
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ELECCION_PASIVA)) {
 			log.info("He recibido que "+id+ " es coordinador mientras estaba en "+estado.toString() + "\n");
-			this.posibleIdCoordinador = id;
+			this.idCordinador = id;
 			this.estado.setEstado(Utils.ACUERDO);
-			log.info("Estado cambiado a " + estado.toString() + "coordinador: " + posibleIdCoordinador + "\n");
+			log.info("Estado cambiado a " + estado.toString() + "coordinador: " + this.idCordinador + "\n");
 			Utils.signalSem(this.timeoutCoordinador, 1);
 			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 			return Utils.RESPONSE_OK;

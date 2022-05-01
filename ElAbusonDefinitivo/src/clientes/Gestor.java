@@ -4,6 +4,7 @@ package clientes;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 import com.coti.tools.Esdia;
@@ -44,10 +45,12 @@ public class Gestor {
 
 	private static void iniciarProcesos() {
 		List<String> agenda = Utils.creaAgenda();
+		Semaphore s = new Semaphore(0);
 		for(int i=0; i<agenda.size(); i++) {
-			Mensajero m = new Mensajero(agenda.get(i)+"inicio?id="+i, Utils.POST);
+			Mensajero m = new Mensajero(agenda.get(i)+"inicio?id="+i, Utils.POST,s);
 			m.start();
 		}//End of for
+		Utils.signalSem(s, agenda.size());
 		log.info("Inciando procesos del 1 al " + (agenda.size()-1));
 	}//End of iniciarProcesos
 
@@ -89,11 +92,14 @@ public class Gestor {
 	
 	private static void parar(Set<Integer> peticion) {
 		List<String> agenda = Utils.creaAgenda();
+		Semaphore s = new Semaphore(0);
 		for (int i:peticion) {
 			String link = agenda.get(i) + "apagar";
-			Mensajero m = new Mensajero(link, Utils.POST);
+			Mensajero m = new Mensajero(link, Utils.POST,s);
 			m.start();
 		}//End of for
+		
+		Utils.signalSem(s, agenda.size());
 		log.info("Se ha mandado parar los procesos: "+ peticion.toString());
 	}//End of parar
 
@@ -135,11 +141,14 @@ public class Gestor {
 	
 	private static void arrancar(Set<Integer> peticion) {
 		List<String> agenda = Utils.creaAgenda();
+		Semaphore s = new Semaphore(0);
 		for (int i:peticion) {
 			String link = agenda.get(i) + "arrancar";
-			Mensajero m = new Mensajero(link, Utils.POST);
+			Mensajero m = new Mensajero(link, Utils.POST,s);
 			m.start();
 		}//End of for
+		
+		Utils.signalSem(s, agenda.size());
 		log.info("Se ha mandado arrancar los procesos: "+ peticion.toString());
 	}//End of arrancar
 
