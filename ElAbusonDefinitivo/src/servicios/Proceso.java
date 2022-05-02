@@ -28,7 +28,7 @@ public class Proceso {
 
 	
 	private int id;
-	private int idCordinador;
+	private int idCordinador, posibleIdCoordinador;
 	private Estado estado;
 	private boolean on = false;
 	private List<String> agenda;
@@ -36,7 +36,6 @@ public class Proceso {
 	private Semaphore muertoVivo;
 	private Semaphore seccionCriticaArrancar, seccionCriticaCambiarEstado;
 	private Semaphore timeoutEleccion, timeoutCoordinador;
-	private Semaphore puerta; //CAMBIO
 	private static Logger log;
 		
 		
@@ -48,7 +47,7 @@ public class Proceso {
 					Utils.waitSem(muertoVivo, 1);
 				
 				if(this.estado.toString() != Utils.ACUERDO) {
-					log.info("Iniciamos elecciones" + "\n");
+					log.info("Inicio elecciones" + "\n");
 					eleccionPeticion();
 				}
 				
@@ -60,7 +59,9 @@ public class Proceso {
 				log.info("Computamos:" + valor + "\n");
 				
 				if(valor.equals(Utils.RESPONSE_ERROR)) {
+					Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 					this.estado.setEstado(Utils.ELECCION_ACTIVA);
+					Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 					log.info("Estado cambiado a " + estado.toString() + "\n");
 				}//End of if
 					
@@ -96,13 +97,21 @@ public class Proceso {
 			try {
 				if(timeoutEleccion.tryAcquire(1, TimeUnit.SECONDS)) {
 					if(timeoutCoordinador.tryAcquire(1, TimeUnit.SECONDS)) {
+						this.idCordinador = this.posibleIdCoordinador;
+						log.info("El nuevo coordinador es   "+ this.idCordinador+ "\n");
+						Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
+						this.estado.setEstado(Utils.ACUERDO);
+						log.info("He cambiado a estado  "+estado.toString() + "\n");
+						Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 						return;
 					}//End of if
 					else {
+						log.info("Se ha vencido el timeout, coordinador no recibido\n");
 						continue;
 					}//End of else
 				}//End of if
 				else {
+					log.info("Se ha vencido el timeout, soy el coordinador\n");
 					coordinador();
 					return;
 				}//End of else	
@@ -150,7 +159,6 @@ public class Proceso {
 		this.seccionCriticaCambiarEstado = new Semaphore(1);
 		this.timeoutCoordinador = new Semaphore (0);
 		this.timeoutEleccion = new Semaphore (0);
-		this.puerta = new Semaphore (0); //cambio
 		log = Utils.crearLoger(Gestor.class.getName(), id+"");
 		
 		try {
@@ -207,8 +215,12 @@ public class Proceso {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("computar")
 	public String computar() {
-		if((this.on == false) || (this.id != this.idCordinador))
+		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
+		if((this.on == false) || (this.id != this.idCordinador)|| !this.estado.toString().equals(Utils.ACUERDO)) {
+			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 			return Utils.RESPONSE_ERROR;
+		}//End of if
+		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		log.info("He recibido computar" + "\n");
 		Random r = new Random();
 		Utils.dormir(r.nextInt(20) + 10);
@@ -221,14 +233,19 @@ public class Proceso {
 	public String eleccionRespuesta (@QueryParam(value = "id") int id) {
 		if(this.on == false) 
 			return Utils.RESPONSE_ERROR;
+		
 		Utils.peticion(this.agenda.get(id)+"ok","POST");
 		log.info("He recibido eleccion por parte del proceso " + id + " y le he enviado un OK" + "\n");
+		
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
-		if(this.estado.toString().equals(Utils.ACUERDO)) {
-			this.estado.setEstado(Utils.ELECCION_ACTIVA);
-			log.info("Estado cambiado a " + estado.toString() + "\n");
+		if(!this.estado.toString().equals(Utils.ACUERDO)) {
+			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
+			return Utils.RESPONSE_OK;
 		}//End of if
+		this.estado.setEstado(Utils.ELECCION_ACTIVA);
+		log.info("Estado cambiado a " + estado.toString() + "\n");
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
+		
 		return Utils.RESPONSE_OK;
 	}// End of eleccionRespuesta	
 	
@@ -239,16 +256,16 @@ public class Proceso {
 		if(this.on == false) 
 			return Utils.RESPONSE_ERROR;
 		
+		log.info("He recibido ok" + "\n");
+		
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		if(this.estado.toString().equals(Utils.ELECCION_ACTIVA)) {
 			this.estado.setEstado(Utils.ELECCION_PASIVA);
 			log.info("Estado cambiado a " + estado.toString() + "\n");
 			Utils.signalSem(this.timeoutEleccion, 1);
-			if(this.puerta.availablePermits()== 0)
-				Utils.signalSem(this.puerta, 1); //cambio
 		}//End of if
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
-		log.info("He recibido ok" + "\n");
+	
 		return Utils.RESPONSE_OK;
 	}// End of eleccionRespuesta
 	
@@ -259,29 +276,23 @@ public class Proceso {
 		if(this.on == false) 
 			return Utils.RESPONSE_ERROR;
 		
-		//CAMBIO ESPERAR
-		Utils.waitSem(this.puerta, 1);
-		
+		log.info("He recibido que "+id+ " es coordinador mientras estaba en "+estado.toString() + "\n");
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
-		if(this.estado.toString().equals(Utils.ELECCION_PASIVA)) {
-			log.info("He recibido que "+id+ " es coordinador mientras estaba en "+estado.toString() + "\n");
-			this.idCordinador = id;
-			this.estado.setEstado(Utils.ACUERDO);
-			log.info("Estado cambiado a " + estado.toString() + "coordinador: " + this.idCordinador + "\n");
-			Utils.signalSem(this.timeoutCoordinador, 1);
-			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
-			return Utils.RESPONSE_OK;
-		}//End of if
+		
 		if(this.estado.toString().equals(Utils.ACUERDO)) {
-			log.info("He recibido que "+id+ " es coordinador mientras estaba en "+estado.toString() + "\n");
 			if(this.idCordinador!=id) {
 				this.estado.setEstado(Utils.ELECCION_ACTIVA);
 				log.info("Estado cambiado a " + estado.toString() + "\n");
 			}//End of if
 			else {
-				log.info("Estado continua en " + estado.toString() + "\n");
-			}
+				log.info("Estado continua en " + estado.toString() + "\n");	
+			}//End of else
 		}//End of if
+		else {
+			this.posibleIdCoordinador = id;
+			Utils.signalSem(this.timeoutCoordinador, 1);
+		}//End of else
+		
 		Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 		return Utils.RESPONSE_OK;
 	}//End of CoordinadorRespuesta
