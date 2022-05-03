@@ -40,8 +40,6 @@ public class Utils {
 	private static final String EMOTE_ELECCION_ACTIVA = "🦍";
 	private static final String EMOTE_ELECCION_PASIVA = "🙊";
 	
-	
-	
 	/*
 	 * Usar junto a: if (output == null || output.contains("error")) {
 	 * System.out.println(output == null ? "Error" : output); return false; } // End
@@ -131,7 +129,7 @@ public class Utils {
 		return sb.toString();
 	}
 	
-	public static Logger crearLoger(String nombreClase,String id) {
+	public static Logger crearLogger(String nombreClase,String id) {
 		
 		//https://stackoverflow.com/questions/15758685/how-to-write-logs-in-text-file-when-using-java-util-logging-logger
 		//https://www.geeksforgeeks.org/logger-getlogger-method-in-java-with-examples/?ref=lbp
@@ -139,16 +137,22 @@ public class Utils {
 	    FileHandler fh;  
 	    boolean creado = false;
 	    int intento = 0;
-	    String ruta = "";
+	    String ruta, base = System.getProperty("user.home").concat("/bullyLogs");
+	    
+	    File carpeta = new File(base);
+	        carpeta.mkdir();
+	    
 	    do {
-	    	ruta = Paths.get(System.getProperty("user.home"),id+"ej"+intento+".log").toString();
-	    	File f = new File(ruta);
-	        if (f.exists())
-	        	intento++;
-	        else
-	        	creado = true;
+	    	intento++;
+	    	
+	    	ruta = base.concat("/"+intento+"proceso"+id+".log");
+		    File f = new File (ruta);
+		    if(!f.exists()) {
+		    	creado = true;
+		    }//End of if
+
 	    }while(!creado);
-	        
+	        	
 	    try {  
 
 	        // This block configure the logger with handler and formatter  

@@ -159,7 +159,7 @@ public class Proceso {
 		this.seccionCriticaCambiarEstado = new Semaphore(1);
 		this.timeoutCoordinador = new Semaphore (0);
 		this.timeoutEleccion = new Semaphore (0);
-		log = Utils.crearLoger(Gestor.class.getName(), id+"");
+		log = Utils.crearLogger(Gestor.class.getName(), id+"");
 		
 		try {
 			estado = new Estado(Utils.ELECCION_ACTIVA);
@@ -216,7 +216,7 @@ public class Proceso {
 	@Path("computar")
 	public String computar() {
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
-		if((this.on == false) || (this.id != this.idCordinador)|| !this.estado.toString().equals(Utils.ACUERDO)) {
+		if((this.on == false) || (this.id != this.idCordinador)) {
 			Utils.signalSem(this.seccionCriticaCambiarEstado, 1);
 			return Utils.RESPONSE_ERROR;
 		}//End of if
@@ -280,13 +280,7 @@ public class Proceso {
 		Utils.waitSem(this.seccionCriticaCambiarEstado, 1);
 		
 		if(this.estado.toString().equals(Utils.ACUERDO)) {
-			if(this.idCordinador!=id) {
-				this.estado.setEstado(Utils.ELECCION_ACTIVA);
-				log.info("Estado cambiado a " + estado.toString() + "\n");
-			}//End of if
-			else {
-				log.info("Estado continua en " + estado.toString() + "\n");	
-			}//End of else
+			this.idCordinador = id;
 		}//End of if
 		else {
 			this.posibleIdCoordinador = id;

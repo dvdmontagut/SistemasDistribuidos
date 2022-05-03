@@ -18,7 +18,7 @@ public class Gestor {
 	
 	public static void main(String[] args) {
 		boolean fin = false;
-		log = Utils.crearLoger(Gestor.class.getName(), "Gestor");
+		log = Utils.crearLogger(Gestor.class.getName(), "Gestor");
 		iniciarProcesos();
 		
 		String menu = "==========MENU==========\n" +
