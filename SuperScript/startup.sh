@@ -1,15 +1,18 @@
 #!/bin/bash
-echo "------------------------"
-echo $1
-echo $2
-echo $3
-echo $4
-#Mover el war a la carpeta del tomcat
-cp $1.war ./$2/webapps/
+
+#Descargamos tomcat
+curl https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.zip > tom.zip
+unzip tom.zip
+chmod +x apache-tomcat-9.0.62/bin/*.sh
+
+cp  $1 apache-tomcat-9.0.62/webapps/$1
+
+cp -r apache-tomcat-9.0.62 Proceso0
+cp -r apache-tomcat-9.0.62 Proceso1
 
 
-sed -i s/<Server port="8005" shutdown="SHUTDOWN">/<Server port="$3" shutdown="SHUTDOWN">/g ./$2/conf/server.xml
-sed -i s/<Connector port="8080" protocol="HTTP/1.1"/<Connector port="$4" protocol="HTTP/1.1"/g ./$2/conf/server.xml
+./super.sh Proceso0 8080 8005
+./super.sh Proceso1 8081 8006
 
-chmod +x $2/bin/*
-./$2/bin/startup.sh
+
+exit 54
