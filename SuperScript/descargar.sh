@@ -1,4 +1,3 @@
-cd Escritorio
 tar -xzvf $1
 
 #Descargamos jersey
@@ -20,4 +19,6 @@ curl https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.z
 unzip tom.zip
 chmod +x apache-tomcat-9.0.62/bin/*.sh
 
-../X/linux/runeclipse
+curl http://vis.usal.es/rodrigo/documentos/sisdis/scripts/shareKeys.sh > shareKeys.sh
+
+X/linux/runeclipse
