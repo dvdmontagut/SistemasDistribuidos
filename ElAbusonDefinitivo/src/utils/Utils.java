@@ -34,11 +34,11 @@ public class Utils {
 	
 	public static final String SEPARADOR=";";
 	
-	public static final String CORAZON_ROJO = "💔";
-	public static final String CORAZON_VERDE = "💚";
-	private static final String EMOTE_ACUERDO = "🍻";
-	private static final String EMOTE_ELECCION_ACTIVA = "🦍";
-	private static final String EMOTE_ELECCION_PASIVA = "🙊";
+	public static final String CORAZON_ROJO = " O ";
+	public static final String CORAZON_VERDE = " # ";
+	private static final String EMOTE_ACUERDO = " :3" ;
+	private static final String EMOTE_ELECCION_ACTIVA = " O.o ";
+	private static final String EMOTE_ELECCION_PASIVA = " :c ";
 	
 	/*
 	 * Usar junto a: if (output == null || output.contains("error")) {

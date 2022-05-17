@@ -17,7 +17,6 @@ public class Gestor {
 	private static Logger log;
 	
 	public static void main(String[] args) {
-		boolean fin = false;
 		log = Utils.crearLogger(Gestor.class.getName(), "Gestor");
 		iniciarProcesos();
 		
@@ -27,13 +26,13 @@ public class Gestor {
 				"Pulse 2 para arrancar procesos.\n" +
 				"Pulse 3 para obtener información.\n" +
 				"Pulse 4 para salir.\n";
-		while(!fin) {
+		while(true) {
 			int input = Esdia.readInt(menu);
 			switch(input) {
 			case 1: menuParar(); break;
 			case 2: menuArrancar(); break;
 			case 3: pedirInfo(); break;
-			case 4: fin=true; break;
+			case 4: return;
 			default: break;
 			}//End of switch
 		}//End of while

@@ -1,3 +1,4 @@
+#!/bin/bash
 tar -xzvf $1
 
 #Descargamos jersey
@@ -18,7 +19,5 @@ mv biblioteca8.jar ElAbusonDefinitivo/WebContent/WEB-INF/lib
 curl https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.zip > tom.zip
 unzip tom.zip
 chmod +x apache-tomcat-9.0.62/bin/*.sh
-
-curl http://vis.usal.es/rodrigo/documentos/sisdis/scripts/shareKeys.sh > shareKeys.sh
 
 X/linux/runeclipse
